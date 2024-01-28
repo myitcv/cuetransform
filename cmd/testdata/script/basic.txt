@@ -1,0 +1,49 @@
+# Verify that a basic series of transformations work
+exec cuetransform apply .
+cmp stdout stdout.golden
+
+-- a.cue --
+package a
+
+data: {
+	a: {
+		b: 3
+	}
+	z: [2, 5, 1]
+}
+
+let origData = data
+
+transforms: [
+	{
+		type: "delete"
+		data: _
+		path: data.z
+	},
+	{
+		type:  "unify"
+		value: z: [for i, v in origData.z if i < 2 {v}, 55]
+	},
+	{
+		type: "delete"
+		data: _
+		path: data.z[1]
+	},
+	{
+		type:  "unify"
+		value: a: c: origData.a
+	},
+	{
+		type: "delete"
+		data: _
+		path: data.z[1]
+	},
+]
+-- stdout.golden --
+a: {
+	b: 3
+	c: {
+		b: 3
+	}
+}
+z: [2]

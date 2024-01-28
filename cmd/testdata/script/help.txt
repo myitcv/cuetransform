@@ -1,0 +1,17 @@
+exec cuetransform -h
+cmp stdout stdout.golden
+
+-- stdout.golden --
+cuetransform is an experimental tool for transform data using CUE-described transforms
+
+Usage:
+  cuetransform [command]
+
+Available Commands:
+  apply       apply a transform to some data
+  help        Help about any command
+
+Flags:
+  -h, --help   help for cuetransform
+
+Use "cuetransform [command] --help" for more information about a command.
