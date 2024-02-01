@@ -1,0 +1,89 @@
+# Demonstrate how a transform can exist separate from
+# a regular CUE package, much like cue cmd _tool.cue files.
+#
+# Notice the file transform.cue does not have a package
+# clause. This means that it does not participate in the
+# cue export check along with the other a*.cue files that
+# do belong to the package a.
+#
+# So transform.cue is effectively "standalone" - but it can
+# import the package a. It does so as uses the value as
+# the data for the transformation.
+
+# Check that cue export works for the package a
+exec cue export .
+cmp stdout stdout.eval.golden
+
+# Apply the transform "placing" the package a in the data: field
+# This needs to be a pipe of commands for now, but could be
+# made much more user-friendly with flags/inputs to cuetransform
+exec cuetransform apply transform.cue
+cmp stdout stdout.transform.golden
+
+-- cue.mod/module.cue --
+module: "my.com/a"
+
+-- a1.cue --
+package a
+
+a: {
+        b: 3
+}
+
+-- a2.cue --
+package a
+
+z: [2, 5, 1]
+
+
+-- transform.cue --
+import "my.com/a"
+
+data: a
+
+let origData = data
+
+transforms: [
+	{
+		type: "delete"
+		data: _
+		path: data.z
+	},
+	{
+		type:  "unify"
+		value: z: [for i, v in origData.z if i < 2 {v}, 55]
+	},
+	{
+		type: "delete"
+		data: _
+		path: data.z[1]
+	},
+	{
+		type:  "unify"
+		value: a: c: origData.a
+	},
+	{
+		type: "delete"
+		data: _
+		path: data.z[1]
+	},
+]
+-- stdout.eval.golden --
+{
+    "a": {
+        "b": 3
+    },
+    "z": [
+        2,
+        5,
+        1
+    ]
+}
+-- stdout.transform.golden --
+a: {
+	b: 3
+	c: {
+		b: 3
+	}
+}
+z: [2]
