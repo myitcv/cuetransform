@@ -23,8 +23,8 @@ Some notes:
 ## Ok, so can the experiment do?
 
 The main place to look for an understanding of what it can/can't do are the
-`testscript` tests in the [tests directory](tree/main/cmd/testdata/script/).
-The [basic test](tree/main/cmd/testdata/script/basic.txt) is a good starting
+`testscript` tests in the [tests directory](cmd/testdata/script/).
+The [basic test](cmd/testdata/script/basic.txt) is a good starting
 point.
 
 ## Context/background
