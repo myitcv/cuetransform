@@ -1,0 +1,26 @@
+# Verify that changing a field value works
+exec cuetransform apply .
+cmp stdout stdout.golden
+
+-- a.cue --
+package a
+
+data: foo: {
+	bar: "baz"
+}
+
+transforms: [
+	{
+		type: "delete"
+		data: _
+		path: data.foo.bar
+	},
+	{
+		type:  "unify"
+		value: foo: bar: "haz"
+	},
+]
+-- stdout.golden --
+foo: {
+	bar: "haz"
+}
