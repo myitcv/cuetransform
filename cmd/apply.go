@@ -227,16 +227,17 @@ func (a *applyCtx) run() error {
 			data = accum
 
 		case "unify":
-			// value must exist and be concrete
-			val := t.LookupPath(cue.MakePath(cue.Str("value")))
-			if !val.Exists() {
-				return fmt.Errorf("%v: no value to insert", t.Path())
-			}
-			if err := val.Validate(cue.Concrete(true)); err != nil {
-				return fmt.Errorf("%v: value is not concrete: %v", t.Path(), err)
-			}
+			// unify the "current" value with the data field
+			t = t.FillPath(cue.MakePath(cue.Str("data")), data)
 
-			data = data.Unify(val)
+			// if the value field exists it must be concrete
+			val := t.LookupPath(cue.MakePath(cue.Str("value")))
+			if val.Exists() {
+				if err := val.Validate(cue.Concrete(true)); err != nil {
+					return fmt.Errorf("%v: value is not concrete: %v", t.Path(), err)
+				}
+				data = data.Unify(val)
+			}
 
 		default:
 			return fmt.Errorf("%v: don't know how to handle transform type %v", t.Path(), typ)

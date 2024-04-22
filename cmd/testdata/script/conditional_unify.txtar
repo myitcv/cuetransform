@@ -1,0 +1,32 @@
+# Verify that changing a field value works
+exec cuetransform apply .
+cmp stdout stdout.golden
+
+-- a.cue --
+package a
+
+data: foo: {
+	bar: "baz"
+}
+
+transforms: [
+	{
+		type:  "unify"
+		data: _
+                if data.foo.bar == "apply" {
+			value: foo: har: "banana"
+                }
+	},
+	{
+		type:  "unify"
+		data: _
+                if data.foo.bar == "baz" {
+			value: foo: har: "haz"
+                }
+	},
+]
+-- stdout.golden --
+foo: {
+	bar: "baz"
+	har: "haz"
+}
